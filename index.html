@@ -15,18 +15,82 @@ P5
   <title>Generative Design: CA 2</title>
 
   <!-- Link to 'CSS' and 'Font' files -->
-  <link href="style.css" rel="stylesheet">
+  <link href="https://jenil.github.io/bulmaswatch/materia/bulmaswatch.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:100" rel="stylesheet">
-
+  <link href="style.css" rel="stylesheet">
+  <link href="slider.css" rel="stylesheet">
 
   <!-- Link to 'JS' files -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.min.js"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 
 </head>
 
 <body>
+  <!-- Control panel for the canvas -->
+  <!-- This is an absolute div -->
+  <aside id="controls" class="card controls">
+    <header id="controlsHeader" class="card-header">
+      <p class="card-header-title">Input Controls</p>
+      <a class="card-header-icon icon-reset">
+        <span class="icon">
+          <i class="fas fa-arrows-alt"></i>
+        </span>
+      </a>
+    </header>
+    <!-- Holds all the controls for the canvas -->
+    <div class="card-content">
+      <div class="field">
+        <label class="label">Shape Size</label>
+        <div id="radiusSlider" class="control">
+        </div>
+      </div>
+      <!-- Control for the image clarity -->
+      <div class="field">
+        <label class="label">Image Clarity</label>
+        <div id="claritySlider" class="control">
+        </div>
+      </div>
+      <!-- Control for text input -->
+      <div class="field">
+        <label class="label">Input Text</label>
+        <div id="txtInput" class="control">
+        </div>
+      </div>
+      <!-- Control for the text size -->
+      <div class="field is-grouped">
+        <div class="control">
+          <label class="label">Text Size</label>
+          <div id="txtSizeDrop" class="control select">
+          </div>
+        </div>
+        <!-- Control for the text style -->
+        <div class="control">
+          <label class="label">Text Style</label>
+          <div id="txtStyleDrop" class="control select">
+          </div>
+        </div>
+      </div>
+      <!-- Control for the shape -->
+      <div class="field is-grouped">
+        <div class="control">
+          <label class="label">Shape</label>
+          <div id="shapeDrop" class="control select">
+          </div>
+        </div>
+        <!-- Control for the shape fill -->
+        <div class="control">
+          <label class="label">Fill</label>
+          <div id="shapeFillDrop" class="control select">
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <!-- Loading Script files -->
   <script src="sketch.js"></script>
+  <script src="movement.js"></script>
 </body>
 
 </html>

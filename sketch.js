@@ -7,6 +7,7 @@ Student No: N00152737
 // Variables for the inputs
 let radiusSlider;
 let claritySlider;
+let sWeightSlider;
 let txtInput;
 let txtSizeDrop;
 let txtStyleDrop;
@@ -30,6 +31,7 @@ let txtG;
 
 // Variables for changing the text
 let pixelD = 8;
+let sWeight = 1;
 let shape = 'Ellipse';
 let shapeFill = 'Fill';
 let shapeOpacity = 200;
@@ -67,6 +69,12 @@ function setup() {
   claritySlider.class('input slider');
   claritySlider.changed(update);
 
+  // Slider for changing the clarity of the image
+  sWeightSlider = createSlider(1, 10, sWeight);
+  sWeightSlider.parent('sWeightSlider');
+  sWeightSlider.class('input slider');
+  sWeightSlider.changed(update);
+
   // Text input for the display
   txtInput = createInput(txtTyped, 'text');
   txtInput.parent('txtInput');
@@ -99,6 +107,7 @@ function setup() {
   shapeDrop.option('Ellipse');
   shapeDrop.option('Rectangle');
   shapeDrop.option('Triangle');
+  shapeDrop.option('Line');
   shapeDrop.option('Type');
   shapeDrop.changed(update);
 
@@ -178,8 +187,10 @@ function drawPoints() {
     // Calculating the current x & y point
     let x = lerp(startArray[i].x, endArray[i].x, lerpDis);
     let y = lerp(startArray[i].y, endArray[i].y, lerpDis);
+    let distance = sqrt(pow((mouseY - y), 2) + pow((mouseX - x), 2));
 
     // Checking whether there a fill, stroke or both is selected
+    strokeWeight(sWeight);
     if (shapeFill === 'Fill') {
       noStroke();
       fill(endArray[i].fill);
@@ -197,6 +208,14 @@ function drawPoints() {
       rect(x, y, shapeSize, shapeSize);
     } else if (shape === 'Triangle') {
       triangle(x - shapeSize / 2, y + shapeSize / 2, x, y - shapeSize / 3, x + shapeSize / 2, y + shapeSize / 2);
+    } else if (shape === 'Line') {
+      stroke(endArray[i].fill);
+      let randPos = random(1);
+      if (randPos < .5) {
+        line(x - shapeSize / 2, y - shapeSize / 2, x + shapeSize / 2, y + shapeSize / 2);
+      }else{
+        line(x + shapeSize / 2, y - shapeSize / 2, x - shapeSize / 2, y + shapeSize / 2);
+      }
     } else if (shape === 'Type') {
       textSize(shapeSize);
       text(txtTyped[floor(random(txtTyped.length + 1))], x, y);
@@ -223,6 +242,7 @@ function update() {
   pixelD = claritySlider.value();
   shape = shapeDrop.value();
   shapeFill = shapeFillDrop.value();
+  sWeight = sWeightSlider.value();
   txtTyped = txtInput.value();
   txtStyle = txtStyleDrop.value();
   let size = txtSizeDrop.value();

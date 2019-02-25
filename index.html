@@ -43,7 +43,7 @@ P5
     <div class="card-content">
       <div class="field">
         <label class="label">Shape Size</label>
-        <div id="radiusSlider" class="control">
+        <div id="sizeSlider" class="control">
         </div>
       </div>
       <!-- Control for the image clarity -->
@@ -52,10 +52,10 @@ P5
         <div id="claritySlider" class="control">
         </div>
       </div>
-      <!-- Control for the strokeWeight -->
+      <!-- Control for the bleed effect -->
       <div class="field">
-        <label class="label">Stroke Weight</label>
-        <div id="sWeightSlider" class="control">
+        <label class="label">Bleed Effect</label>
+        <div id="bleedSlider" class="control">
         </div>
       </div>
       <!-- Control for text input -->
@@ -92,9 +92,17 @@ P5
           </div>
         </div>
       </div>
+      <!-- Reset button for canvas -->
+      <div class="field is-grouped">
+        <div id="saveButton" class="control">
+        </div>
+        <div id="clearButton" class="control">
+        </div>
+      </div>
     </div>
   </aside>
   <!-- Loading Script files -->
+  <script src="Particle.js"></script>
   <script src="sketch.js"></script>
   <script src="movement.js"></script>
 </body>

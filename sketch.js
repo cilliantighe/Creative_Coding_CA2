@@ -5,41 +5,44 @@ Student No: N00152737
 */
 
 // Variables for the inputs
-let radiusSlider;
+let sizeSlider;
 let claritySlider;
-let sWeightSlider;
+let bleedSlider;
 let txtInput;
 let txtSizeDrop;
 let txtStyleDrop;
 let shapeDrop;
 let shapeFillDrop;
+let saveButton;
+let clearButton;
 
-// Array Variables
-let startArray = [];
-let endArray = [];
+// Array for the mover objects
+// Array for the mover objects end points
+let particles = [];
+let pointArray = [];
 
-// Variables for the lerp value and the distance from the start and end point
-let lerpDis = 0;
-let distance = 100;
+// Variables for changing the animation
+let fall = false;
+let follow = false;
+let reset = false;
 
 //Image loaded in
 let img;
-let load_image = 'image_3.jpg';
+let load_image = 'image_6.jpg';
 
 // letiable that holds the txtGraphic
 let txtG;
 
 // Variables for changing the text
 let pixelD = 8;
-let sWeight = 1;
-let shape = 'Ellipse';
+let bleedEffect = 50;
+let shape = 'Line';
 let shapeFill = 'Fill';
 let shapeOpacity = 200;
 let shapeSize = 10;
 let txtSize = 250;
 let txtStyle;
-let mouseDis = 100;
-let txtTyped = 'REDRUM';
+let txtTyped = 'Generative Design';
 
 // Loading in image
 function preload() {
@@ -58,22 +61,22 @@ function setup() {
   img.loadPixels();
 
   // Slider for changing the shape size
-  radiusSlider = createSlider(1, 20, shapeSize);
-  radiusSlider.parent('radiusSlider');
-  radiusSlider.class('input slider');
-  radiusSlider.changed(update);
+  sizeSlider = createSlider(1, 20, shapeSize);
+  sizeSlider.parent('sizeSlider');
+  sizeSlider.class('input slider');
+  sizeSlider.input(update);
 
   // Slider for changing the clarity of the image
   claritySlider = createSlider(2, 20, pixelD);
   claritySlider.parent('claritySlider');
   claritySlider.class('input slider');
-  claritySlider.changed(update);
+  claritySlider.input(update);
 
   // Slider for changing the clarity of the image
-  sWeightSlider = createSlider(1, 10, sWeight);
-  sWeightSlider.parent('sWeightSlider');
-  sWeightSlider.class('input slider');
-  sWeightSlider.changed(update);
+  bleedSlider = createSlider(0, 255, bleedEffect);
+  bleedSlider.parent('bleedSlider');
+  bleedSlider.class('input slider');
+  bleedSlider.input(update);
 
   // Text input for the display
   txtInput = createInput(txtTyped, 'text');
@@ -104,10 +107,10 @@ function setup() {
   // Dropdown list for shape
   shapeDrop = createSelect();
   shapeDrop.parent('shapeDrop');
+  shapeDrop.option('Line');
   shapeDrop.option('Ellipse');
   shapeDrop.option('Rectangle');
   shapeDrop.option('Triangle');
-  shapeDrop.option('Line');
   shapeDrop.option('Type');
   shapeDrop.changed(update);
 
@@ -119,6 +122,18 @@ function setup() {
   shapeFillDrop.option('Both');
   shapeFillDrop.changed(update);
 
+  // Save button for the canvas
+  saveButton = createButton('Save');
+  saveButton.parent('saveButton');
+  saveButton.class('button is-link');
+  saveButton.mousePressed(saveGraphic);
+
+  // Save button for the canvas
+  clearButton = createButton('Clear');
+  clearButton.parent('clearButton');
+  clearButton.class('button is-text');
+  clearButton.mousePressed(clearCanvas);
+
   // Applying default styling to sketch
   noStroke();
   noFill();
@@ -129,97 +144,88 @@ function setup() {
 // The 'draw' function is called in a loop. Everything that is in the function is executed continuously
 function draw() {
   // Setting the background to a lower opacity to allow a bleed effect on the moving shapes
-  background(255, 55);
+  background(255, bleedEffect);
   randomSeed(1);
 
-  // Updating the array of points of the text graphic
-  // Drawing the points
-  updatePoints();
-  drawPoints();
-  /*
-  Increasing the lerpDis value on each iteration to move the points from the
-  startArray to their goal in the endArray. When the value has reached over 1, the
-  lerpDis is explicity set to 1 as this represents their desired position
-  */
-  if (lerpDis < 1) {
-    lerpDis = lerpDis + 0.02;
-  } else {
-    lerpDis = 1;
-  }
-}
-
-// Function for updating the arrays for start and end points
-function updatePoints() {
-  startArray = [];
-  endArray = [];
-
-  //Looping through the pixels array of the graphic
-  for (let y = 0; y < txtG.height; y += pixelD) {
-    for (let x = 0; x < txtG.width; x += pixelD) {
-      // Getting the index value for the graphic that was created
-      // Getting the index value for the image that was imported
-      let graphicIndex = (x + y * txtG.width) * 4;
-      let imgIndex = (x + y * img.width) * 4;
-      if (txtG.pixels[graphicIndex] <= 128) {
-        // Pushing a random start point for each item
-        startArray.push({
-          x: x + random(-distance, distance),
-          y: y + random(-distance, distance)
-        });
-        // Pushing the destination point for each item with the fill colour
-        endArray.push({
-          x: x,
-          y: y,
-          fill: color(img.pixels[imgIndex], img.pixels[imgIndex + 1], img.pixels[imgIndex + 2], shapeOpacity)
-        });
+  // If there are already particles in the array, don't repopulate it
+  if (particles.length <= 0) {
+    //Looping through the pixels array of the graphic
+    for (let y = 0; y < txtG.height; y += pixelD) {
+      for (let x = 0; x < txtG.width; x += pixelD) {
+        // Getting the index value for the graphic that was created
+        // Getting the index value for the image that was imported
+        let graphicIndex = (x + y * txtG.width) * 4;
+        let imgIndex = (x + y * img.width) * 4;
+        if (txtG.pixels[graphicIndex] <= 128) {
+          // Creating an array with all the end points for each particle
+          pointArray.push({
+            x: x,
+            y: y
+          });
+          // Populating the particles array with a particle object
+          particles.push(new Particle(x, y, txtTyped, shape,
+            color(img.pixels[imgIndex], img.pixels[imgIndex + 1], img.pixels[imgIndex + 2], shapeOpacity), shapeFill, shapeSize, random(5, 10)));
+        }
       }
     }
   }
+
+  // Loop for rendering all the particles
+  for (let i = 0; i < particles.length; i++) {
+    // Applying gravity and friction to the particles
+    if (fall) {
+      let gravity = createVector(0, 0.1 * particles[i].mass);
+      // Method for calculating the force being applied to each object
+      let c = 0.5;
+      let normal = 1;
+      let frictionMag = c * normal;
+      let friction = p5.Vector.mult(particles[i].velocity, -1);
+      friction.normalize();
+      friction.mult(frictionMag);
+      particles[i].applyForce(friction);
+      particles[i].applyForce(gravity);
+      particles[i].checkEdges();
+      particles[i].update();
+      particles[i].draw();
+    }
+    // The particles will follow the mouse when the condition in met
+    else if (follow) {
+      particles[i].setFollow(follow);
+      particles[i].checkEdges();
+      particles[i].update();
+      particles[i].draw();
+    }
+    // The canvas will be reset when the condition is met
+    else if (reset) {
+      particles[i].setDesiredLoc(createVector(pointArray[i].x, pointArray[i].y));
+      particles[i].reset();
+      particles[i].draw();
+    } else {
+      particles[i].setFollow(follow);
+      particles[i].draw();
+    }
+  }
 }
 
-/*
-Function that draws each point from the startArray position and gradually
-moves each point to their destination using the lerp function. The lerpDis variable
-determines where the point is between it's start and end.
-*/
-function drawPoints() {
-  for (let i = 0; i < endArray.length; i++) {
-    // Calculating the current x & y point
-    let x = lerp(startArray[i].x, endArray[i].x, lerpDis);
-    let y = lerp(startArray[i].y, endArray[i].y, lerpDis);
-    let distance = sqrt(pow((mouseY - y), 2) + pow((mouseX - x), 2));
-
-    // Checking whether there a fill, stroke or both is selected
-    strokeWeight(sWeight);
-    if (shapeFill === 'Fill') {
-      noStroke();
-      fill(endArray[i].fill);
-    } else if (shapeFill === 'Stroke') {
-      noFill();
-      stroke(endArray[i].fill);
-    } else if (shapeFill === 'Both') {
-      stroke(endArray[i].fill);
-      fill(endArray[i].fill);
-    }
-    // Checking what shape is to be drawn
-    if (shape === 'Ellipse') {
-      ellipse(x, y, shapeSize, shapeSize);
-    } else if (shape === 'Rectangle') {
-      rect(x, y, shapeSize, shapeSize);
-    } else if (shape === 'Triangle') {
-      triangle(x - shapeSize / 2, y + shapeSize / 2, x, y - shapeSize / 3, x + shapeSize / 2, y + shapeSize / 2);
-    } else if (shape === 'Line') {
-      stroke(endArray[i].fill);
-      let randPos = random(1);
-      if (randPos < .5) {
-        line(x - shapeSize / 2, y - shapeSize / 2, x + shapeSize / 2, y + shapeSize / 2);
-      }else{
-        line(x + shapeSize / 2, y - shapeSize / 2, x - shapeSize / 2, y + shapeSize / 2);
-      }
-    } else if (shape === 'Type') {
-      textSize(shapeSize);
-      text(txtTyped[floor(random(txtTyped.length + 1))], x, y);
-    }
+// Function for checking user input
+function keyPressed() {
+  // This will turn the forces on and off
+  if (keyCode === DOWN_ARROW) {
+    follow = false;
+    reset = false;
+    fall = fall ? false : true;
+  }
+  // This will turn the follow on and off
+  else if (keyCode === UP_ARROW) {
+    fall = false;
+    reset = false;
+    follow = follow ? false : true;
+  }
+  // This will reset the position of each particle to their end points
+  else if (key === 'r' || key === 'R') {
+    fall = false;
+    follow = false;
+    reset = reset ? false : true;
   }
 }
 
@@ -238,20 +244,30 @@ function txtGraphic() {
 
 // Function that is called when an input field is changed
 function update() {
-  shapeSize = radiusSlider.value();
+  shapeSize = sizeSlider.value();
   pixelD = claritySlider.value();
   shape = shapeDrop.value();
   shapeFill = shapeFillDrop.value();
-  sWeight = sWeightSlider.value();
+  bleedEffect = bleedSlider.value();
   txtTyped = txtInput.value();
   txtStyle = txtStyleDrop.value();
   let size = txtSizeDrop.value();
   txtSize = int(size);
+  clearCanvas();
   txtGraphic();
-  lerpDis = 0;
 }
 
 // Function to save an image of the canvas
-function keyPressed() {
-  if (keyCode === DOWN_ARROW) saveCanvas(canvas, 'GD_CA2', 'png');
+function saveGraphic() {
+  saveCanvas(canvas, 'GD_CA2', 'png');
+}
+
+// Function to clear the canvas
+function clearCanvas() {
+  clear();
+  fall = false;
+  follow = false;
+  reset = false;
+  pointArray = [];
+  particles = [];
 }

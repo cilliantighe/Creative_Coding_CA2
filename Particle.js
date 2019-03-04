@@ -139,7 +139,7 @@ class Particle {
 
   // Set function  for the size
   setSize(_size) {
-    //this.size = map(this.location.y, this.desiredLoc.y, height, _size, 0);
-    this.size = map(this.desiredLoc.y, this.location.y, height, _size, 0);
+    this.size = map(this.location.y, this.desiredLoc.y, height, _size, 0);
+    //this.size = map(this.desiredLoc.y, this.location.y, height, _size, 0);
   }
 }

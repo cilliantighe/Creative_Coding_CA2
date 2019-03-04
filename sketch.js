@@ -16,6 +16,11 @@ let shapeFillDrop;
 let saveButton;
 let clearButton;
 
+// Value displays
+let sizeValue;
+let clarityValue;
+let bleedValue;
+
 // Array for the mover objects
 // Array for the mover objects end points
 let particles = [];
@@ -35,7 +40,7 @@ let txtG;
 
 // Variables for changing the text
 let pixelD = 8;
-let bleedEffect = 50;
+let bleedEffect = 10;
 let shape = 'Line';
 let shapeFill = 'Fill';
 let shapeOpacity = 200;
@@ -51,6 +56,7 @@ function preload() {
 
 // The 'setup' function is only called once. Everything within the function is executed once
 function setup() {
+  //frameRate(10);
   let canvas = createCanvas(windowWidth, windowHeight);
   // Calling the function to create the graphic
   txtG = createGraphics(width, height);
@@ -59,6 +65,16 @@ function setup() {
 
   // Loading the image's pixels
   img.loadPixels();
+
+  // ValueDisplays
+  sizeValue = document.getElementById('sizeValue');
+  clarityValue = document.getElementById('clarityValue');
+  bleedValue = document.getElementById('bleedValue');
+
+  // Setting display values
+  sizeValue.innerHTML = shapeSize;
+  clarityValue.innerHTML = pixelD;
+  bleedValue.innerHTML = bleedEffect;
 
   // Slider for changing the shape size
   sizeSlider = createSlider(1, 20, shapeSize);
@@ -173,6 +189,7 @@ function draw() {
   // Loop for rendering all the particles
   for (let i = 0; i < particles.length; i++) {
     // Applying gravity and friction to the particles
+    particles[i].setDesiredLoc(createVector(pointArray[i].x, pointArray[i].y));
     if (fall) {
       let gravity = createVector(0, 0.1 * particles[i].mass);
       // Method for calculating the force being applied to each object
@@ -184,12 +201,14 @@ function draw() {
       friction.mult(frictionMag);
       particles[i].applyForce(friction);
       particles[i].applyForce(gravity);
+      particles[i].setSize(shapeSize);
       particles[i].checkEdges();
       particles[i].update();
       particles[i].draw();
     }
     // The particles will follow the mouse when the condition in met
     else if (follow) {
+      particles[i].setSize(shapeSize);
       particles[i].setFollow(follow);
       particles[i].checkEdges();
       particles[i].update();
@@ -197,7 +216,7 @@ function draw() {
     }
     // The canvas will be reset when the condition is met
     else if (reset) {
-      particles[i].setDesiredLoc(createVector(pointArray[i].x, pointArray[i].y));
+      particles[i].setSize(shapeSize);
       particles[i].reset();
       particles[i].draw();
     } else {
@@ -252,6 +271,12 @@ function update() {
   txtTyped = txtInput.value();
   txtStyle = txtStyleDrop.value();
   let size = txtSizeDrop.value();
+
+  // Updating display values
+  sizeValue.innerHTML = shapeSize;
+  clarityValue.innerHTML = pixelD;
+  bleedValue.innerHTML = bleedEffect;
+
   txtSize = int(size);
   clearCanvas();
   txtGraphic();

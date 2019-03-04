@@ -14,11 +14,13 @@ class Particle {
     this.acceleration = createVector(0, 0);
     this.maxSpeed = 5;
     this.follow = false;
+    this.home = false;
   }
 
   // Update function for changing the particle's position
   update() {
     if (this.follow) {
+      this.home = false;
       let mouse = createVector(mouseX, mouseY);
       let dir = p5.Vector.sub(mouse, this.location);
       dir.normalize();
@@ -51,7 +53,7 @@ class Particle {
       noFill();
       stroke(this.color);
     } else if (this.fill === 'Both') {
-      stroke(this.color);
+      stroke(this.home ? this.color : '#FFFFFF');
       fill(this.color);
     }
     // Checking what shape is to be drawn
@@ -62,7 +64,7 @@ class Particle {
     } else if (this.shape === 'Triangle') {
       triangle(0 - this.size / 2, 0 + this.size / 2, 0, 0 - this.size / 3, 0 + this.size / 2, 0 + this.size / 2);
     } else if (this.shape === 'Line') {
-      stroke(this.color);
+      stroke(this.home ? '#FFFFFF' : this.color);
       let randPos = random(1);
       if (randPos < .5) {
         line(0 - this.size / 2, 0 - this.size / 2, 0 + this.size / 2, 0 + this.size / 2);
@@ -78,6 +80,7 @@ class Particle {
 
   // Function for applying a force to the particle
   applyForce(force) {
+    this.home = false;
     let f = p5.Vector.div(force, this.size);
     this.acceleration.add(f);
   }
@@ -90,6 +93,17 @@ class Particle {
     if (this.location.y - (this.size / 2) <= 0 || this.location.y + (this.size / 2) >= height) {
       this.velocity.y = this.velocity.y * -1;
     }
+
+    // Alt effect
+    // if (this.location.x - (this.size / 2) <= 0) {
+    //   this.location.x = width - (this.size / 2);
+    // } else if (this.location.x + (this.size / 2) >= width) {
+    //   this.location.x = 0 + (this.size / 2);
+    // } else if (this.location.y - (this.size / 2) <= 0) {
+    //   this.location.y = height - (this.size / 2);
+    // } else if (this.location.y + (this.size / 2) >= height) {
+    //   this.location.y = 0 + (this.size / 2);
+    // }
   }
 
   // Function that resets the current location of the particle to the desired location
@@ -106,6 +120,7 @@ class Particle {
       this.velocity.limit(this.maxSpeed);
       this.location.add(this.velocity);
     } else {
+      this.home = true;
       this.location = this.desiredLoc;
       this.velocity = createVector(0, 0);
       this.acceleration = createVector(0, 0);
@@ -120,5 +135,11 @@ class Particle {
   // Set function for the desired location
   setDesiredLoc(_desLoc) {
     this.desiredLoc = _desLoc;
+  }
+
+  // Set function  for the size
+  setSize(_size) {
+    //this.size = map(this.location.y, this.desiredLoc.y, height, _size, 0);
+    this.size = map(this.desiredLoc.y, this.location.y, height, _size, 0);
   }
 }

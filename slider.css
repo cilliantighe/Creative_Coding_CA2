@@ -13,6 +13,7 @@ https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_js_rangeslider_rou
   opacity: 0.7;
   -webkit-transition: .2s;
   transition: opacity .2s;
+  border-radius: 5px;
 }
 
 .slider:hover {
@@ -22,8 +23,8 @@ https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_js_rangeslider_rou
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 15px;
-  height: 15px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #2196F3;
   cursor: ew-resize;

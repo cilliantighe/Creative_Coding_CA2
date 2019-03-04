@@ -28,6 +28,12 @@ P5
 </head>
 
 <body>
+
+  <!-- Tooltip div -->
+  <div class="tooltip">
+    <span class="tooltiptext"></span>
+  </div>
+
   <!-- Control panel for the canvas -->
   <!-- This is an absolute div -->
   <aside id="controls" class="card controls">
@@ -42,19 +48,19 @@ P5
     <!-- Holds all the controls for the canvas -->
     <div class="card-content">
       <div class="field">
-        <label class="label">Shape Size</label>
+        <label class="label">Shape Size <span id="sizeValue" class="tag"></span></label>
         <div id="sizeSlider" class="control">
         </div>
       </div>
       <!-- Control for the image clarity -->
       <div class="field">
-        <label class="label">Image Clarity</label>
+        <label class="label">Image Clarity <span id="clarityValue" class="tag"></span></label>
         <div id="claritySlider" class="control">
         </div>
       </div>
       <!-- Control for the bleed effect -->
       <div class="field">
-        <label class="label">Bleed Effect</label>
+        <label class="label">Bleed Effect <span id="bleedValue" class="tag"></span></label>
         <div id="bleedSlider" class="control">
         </div>
       </div>
